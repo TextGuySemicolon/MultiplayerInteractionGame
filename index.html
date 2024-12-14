@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity Web Player | MultiplayerWebGLShakingGame</title>
+        <!-- Include Socket.IO from CDN -->
+        <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+
+        <style>
+          /* Unity canvas style */
+          #unity-canvas {
+            background-color: cadetblue;
+            width: 600px;
+            height: 960px;
+          }
+          /* Hide the canvas while Unity loads */
+          #unity-canvas.loading {
+            display: none;
+          }
+          /* Loading message */
+          #loading-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 24px;
+          }
+        </style>
+  </head>
+  <body style="text-align: center; padding: 0; border: 0; margin: 0;">
+    <canvas id="unity-canvas" width=600 height=960 tabindex="-1" style="width: 600px; height: 960px; background: #231F20"></canvas>
+    <script src="Build/Client.loader.js"></script>
+    <script>
+      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+        // Mobile device style: fill the whole browser client area with the game canvas:
+        var meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+        document.getElementsByTagName('head')[0].appendChild(meta);
+
+        var canvas = document.querySelector("#unity-canvas");
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.position = "fixed";
+
+        document.body.style.textAlign = "left";
+      }
+
+      var myUnityInstance;
+      createUnityInstance(document.querySelector("#unity-canvas"), {
+        arguments: [],
+        dataUrl: "Build/Client.data.br",
+        frameworkUrl: "Build/Client.framework.js.br",
+        codeUrl: "Build/Client.wasm.br",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Artcage",
+        productName: "MultiplayerWebGLShakingGame",
+        productVersion: "1.0",
+        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
+        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
+      }).then((unityInstance) => {
+                //added by JY
+                myUnityInstance = unityInstance;
+
+              }).catch((message) => {
+                alert(message);
+              });
+
+  function initSocket(){
+  // Set up the socket connection with auth token
+  window.socket = io("http://localhost:3000");
+
+  // Connection success
+  window.socket.on("connect", function () {
+  console.log("Successfully connected to the server");
+  // Call Unity C# method "OnSocketConnected"
+  });
+  }
+
+  // Emit join event
+  function joinGame(username, role) {
+    if (window.socket) {
+      window.socket.emit("joinGame", { username: username, role: role});
+    }
+  }
+
+    // Emit click event
+    function sendProgress(progress) {
+    if (window.socket) {
+      window.socket.emit("progressUpdate", { progress: progress });
+    }
+  }
+
+  // Disconnect socket
+  function disconnectSocket() {
+    if (window.socket) {
+      window.socket.disconnect();
+    }
+  }
+    </script>
+    <script src="DeviceMotion.js"></script>
+
+  </body>
+</html>

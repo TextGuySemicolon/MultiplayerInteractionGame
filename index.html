@@ -70,7 +70,7 @@
 
   function initSocket(){
   // Set up the socket connection with auth token
-  window.socket = io("http://localhost:3000");
+  window.socket = io("https://git.heroku.com/interactive-game-server.git");
 
   // Connection success
   window.socket.on("connect", function () {
